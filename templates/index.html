@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>News Search</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    #search-box {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 300px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+
+    .news-card {
+      background: #fff;
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .news-card img {
+      width: 150px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .news-content {
+      flex: 1;
+    }
+
+    .news-content h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .news-content p {
+      color: #333;
+      margin: 0 0 10px;
+    }
+
+    .news-content a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    .news-content a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="search-box">
+    <input type="text" id="search" placeholder="Search for news...">
+    <button onclick="fetchNews()">Search</button>
+  </div>
+
+  <div id="news-container"></div>
+
+  <script>
+    function fetchNews() {
+      const query = document.getElementById('search').value;
+      if (!query) return;
+
+      fetch(`/search?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('news-container');
+          container.innerHTML = '';
+          if (data.articles.length === 0) {
+            container.innerHTML = '<p>No news found.</p>';
+            return;
+          }
+
+          data.articles.forEach(article => {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            card.innerHTML = `
+              <img src="${article.image || 'https://via.placeholder.com/150x100?text=No+Image'}" alt="news image">
+              <div class="news-content">
+                <h3>${article.title}</h3>
+                <p>${article.description || article.content || ''}</p>
+                <a href="/article?title=${encodeURIComponent(article.title)}&description=${encodeURIComponent(article.description || '')}&content=${encodeURIComponent(article.content || '')}&image=${encodeURIComponent(article.image || '')}&url=${encodeURIComponent(article.url)}" target="_blank">Read more</a>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        });
+    }
+  </script>
+
+</body>
+</html>
